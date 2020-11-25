@@ -1,46 +1,46 @@
-#ifndef KD_TREE_HPP_
-#define KD_TREE_HPP_
+#pragma once
 
 #include <memory>
 #include <vector>
+
 #include "nanoflann.hpp"
 
-namespace kdtree {
-// kd树基类(包含kd树的一些基本操作)
-template <typename PointT, template <typename> class PointCloudT>
+namespace kd_tree {
+template <typename PointCloudT>
 class KdTree {
  public:
+  using PointT = typename PointCloudT::PointT;
+  using FloatType = typename PointT::FloatType;
   explicit KdTree() {
     params_.sorted = true;
-    point_cloud_.reset(new PointCloudT<PointT>);
+    point_cloud_.reset(new PointCloudT);
   }
   virtual ~KdTree() = default;
 
  protected:
-  std::unique_ptr<PointCloudT<PointT>> point_cloud_;  //原始点云
-  nanoflann::SearchParams params_;                    //搜索参数
+  std::unique_ptr<PointCloudT> point_cloud_;
+  nanoflann::SearchParams params_;
 
  public:
-  //获得原始点云
-  const std::vector<PointT>& pointCloud() const { return *point_cloud_; }
+  const std::vector<PointT>& pointCloud() const {
+    return point_cloud_->pointCloud();
+  }
 
-  //获得序数对应的点
   const PointT& operator[](const size_t index) const {
     return (*point_cloud_)[index];
   }
 
-  //重置整个kd树
   virtual void reset() = 0;
 
-  //搜索最近的k个点
-  virtual int nearestKSearch(const PointT& point, int num_closest,
-                             std::vector<int>& k_indices,
-                             std::vector<float>& k_sqr_distances) const = 0;
+  virtual size_t nearestKSearch(
+      const PointT& point, size_t num_closest, std::vector<size_t>& k_indices,
+      std::vector<FloatType>& k_squared_distances) const = 0;
 
-  //搜索固定半径的圆内的点
-  virtual int radiusSearch(const PointT& point, float radius,
-                           std::vector<int>& k_indices,
-                           std::vector<float>& k_sqr_distances) const = 0;
+  virtual size_t radiusSearch(const PointT& point, FloatType radius,
+                              std::vector<size_t>& k_indices) const = 0;
+
+  virtual size_t squaredRadiusSearch(const PointT& point,
+                                     FloatType squared_radius,
+                                     std::vector<size_t>& k_indices) const = 0;
 };
-}  // namespace kdtree
-#endif
+}  // namespace kd_tree

@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(PCL REQUIRED)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -105,7 +107,7 @@ catkin_package(
    INCLUDE_DIRS include
 #  LIBRARIES kdtree
    CATKIN_DEPENDS roscpp rospy std_msgs
-   DEPENDS Eigen3
+   DEPENDS Eigen3 PCL
 )
 
 ###########
@@ -117,6 +119,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 include_directories("/usr/include/eigen3")
 
@@ -134,8 +137,11 @@ include_directories("/usr/include/eigen3")
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/kdtree_node.cpp)
-add_executable(static_kd_tree_3d_example src/static_kd_tree_3d_example.cpp)
-add_executable(dynamic_kd_tree_3d_example src/dynamic_kd_tree_3d_example.cpp)
+add_executable(static_3d_tree_example src/static_3d_tree_example.cpp)
+add_executable(dynamic_3d_tree_example src/dynamic_3d_tree_example.cpp)
+add_executable(time_compare src/time_compare.cpp)
+target_link_libraries(time_compare ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
