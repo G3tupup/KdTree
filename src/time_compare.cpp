@@ -45,23 +45,44 @@ int main() {
       std::vector<int> pcl_indices;
       std::vector<float> pcl_squared_distances;
       time_counter::tick("Static3dTree nearestKSearch");
-      size_t num_3d = static_3d_tree.nearestKSearch(point_to_search, 6, indices,
-                                                    squared_distances);
+      size_t k_num = static_3d_tree.nearestKSearch(point_to_search, 6, indices,
+                                                   squared_distances);
       time_counter::tock("Static3dTree nearestKSearch");
 
       time_counter::tick("KdTreeFLANN nearestKSearch");
-      int pcl_num_3d = pcl_kdtree.nearestKSearch(
+      int pcl_k_num = pcl_kdtree.nearestKSearch(
           pcl_point_to_search, 6, pcl_indices, pcl_squared_distances);
       time_counter::tock("KdTreeFLANN nearestKSearch");
 
+      if (k_num != pcl_k_num) {
+        std::cout << "Results are not consistent!" << std::endl;
+      } else {
+        for (int i = 0; i < pcl_k_num; i++) {
+          if (indices[i] != pcl_indices[i]) {
+            std::cout << "Results are not consistent!" << std::endl;
+          }
+        }
+      }
+
       time_counter::tick("Static3dTree radiusKSearch");
-      num_3d = static_3d_tree.radiusSearch(point_to_search, 0.4f, indices);
+      size_t r_num =
+          static_3d_tree.radiusSearch(point_to_search, 0.4f, indices);
       time_counter::tock("Static3dTree radiusKSearch");
 
       time_counter::tick("KdTreeFLANN radiusKSearch");
-      pcl_num_3d = pcl_kdtree.radiusSearch(pcl_point_to_search, 0.4f,
-                                           pcl_indices, pcl_squared_distances);
+      int pcl_r_num = pcl_kdtree.radiusSearch(
+          pcl_point_to_search, 0.4f, pcl_indices, pcl_squared_distances);
       time_counter::tock("KdTreeFLANN radiusKSearch");
+
+      if (r_num != pcl_r_num) {
+        std::cout << "Results are not consistent!" << std::endl;
+      } else {
+        for (int i = 0; i < pcl_r_num; i++) {
+          if (indices[i] != pcl_indices[i]) {
+            std::cout << "Results are not consistent!" << std::endl;
+          }
+        }
+      }
     }
   }
   time_counter::output("Static3dTree buildtree");
